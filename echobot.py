@@ -9,15 +9,16 @@ from config import BOT_TOKEN
 from data.questions import questions
 #from task2.archive.diary import handle_diary_menu
 from utils.keyboards import get_main_keyboard
-from handlers.zodiac_handlers import show_zodiac_main_menu
+from handlers.zodiac_handlers import show_zodiac_main_menu, process_zodiac_input, show_all_zodiac_signs
 from handlers.anxiety_handlers import handle_anxiety_flow
 from handlers.conflict_handlers import show_conflict_main_menu, start_nvc_process, show_example_phrase, explain_nvc, process_nvc_step
 from data.conflict_data import nvc_steps
 from handlers.help_command_handlers import help_command
 from handlers.start_handlers import start
-from handlers.truth_or_dare_handlers import truth_or_dare_game, truth_game, dare_game
+from handlers.truth_or_dare_handlers import truth_or_dare_game, truth_game, dare_game, handle_category_selection
 from handlers.exit_handlers import exit
 from handlers.daily_practice_handlers import send_daily_practice, daily_practice_settings, enable_daily_practice, disable_daily_practice
+from data.truth_or_dare import truth_questions, dare_actions
 
 
 logging.basicConfig(
@@ -38,12 +39,10 @@ async def handle_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('Пожалуйста, выберите опцию из меню ниже:', parse_mode='Markdown', reply_markup=get_main_keyboard())
         
     elif text == '📋 Все знаки зодиака':
-        from handlers.zodiac_handlers import show_all_zodiac_signs
         await show_all_zodiac_signs(update, context)
         return
     
     if context.user_data.get('waiting_for_zodiac_input'):
-        from handlers.zodiac_handlers import process_zodiac_input
         await process_zodiac_input(update, context)
         return
     
@@ -55,6 +54,14 @@ async def handle_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if current_step > 0 and current_step <= len(nvc_steps):
         await process_nvc_step(update, context)
+        return
+    
+    all_truth_categories = [cat["category"] for cat in truth_questions]
+    all_dare_categories = [cat["category"] for cat in dare_actions]
+    all_categories = all_truth_categories + all_dare_categories + ["🔄 Перемешать всё"]
+    
+    if text in all_categories:
+        await handle_category_selection(update, context)
         return
     
     if text == '💬 Время для разговора':

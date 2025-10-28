@@ -24,6 +24,21 @@ def get_truth_or_dare_keyboard():
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
+def get_categories_keyboard(categories):
+    keyboard = []
+
+    for i in range(0, len(categories), 2):
+        row = []
+        if i < len(categories):
+            row.append(categories[i])
+        if i + 1 < len(categories):
+            row.append(categories[i + 1])
+        keyboard.append(row)
+
+    keyboard.append(['🔙 Назад'])
+    
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
 def get_settings_keyboard():
     keyboard = [
         ['✅ Включить рассылку'],
@@ -54,21 +69,21 @@ def get_anxiety_techniques_keyboard(category: str):
     category_data = anxiety_techniques[category]
     techniques = [tech['name'] for tech in category_data['techniques']]
     
-    technique_buttons = []
+    keyboard = []
     row = []
     
     for technique in techniques:
         row.append(technique)
         if len(row) == 2:
-            technique_buttons.append(row)
+            keyboard.append(row)
             row = []
     
     if row:
-        technique_buttons.append(row)
+        keyboard.append(row)
     
-    technique_buttons.append(['🔙 Назад'])
+    keyboard.append(['🔙 Назад'])
     
-    return ReplyKeyboardMarkup(technique_buttons, resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 def get_conflict_keyboard():
     keyboard = [
